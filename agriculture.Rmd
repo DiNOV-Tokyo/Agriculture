@@ -1,0 +1,52 @@
+---
+title: "Tometo_2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 世界の野菜生産
+[Food and agriculture of United Nations]<http://www.fao.org/home/en>.
+
+
+```{r data}
+library(tidyverse)
+
+dat <- read.csv("FAOSTAT_tometo_2018.csv", header = TRUE)
+
+dat2 <- dat %>%
+  select(-Flag) %>%
+  drop_na() %>% 
+  rename(val = Value) %>% 
+  arrange(desc(val))
+
+table_df<-data.frame(Country=dat2$Area, Value=dat2$val)
+
+```
+
+## Plots
+
+
+```{r map}
+library(rworldmap)
+
+sdat <- joinCountryData2Map(dat2, joinCode="NAME", nameJoinColumn="Area")
+
+mapCountryData(sdat, nameColumnToPlot="val", catMethod="fixedWidth", mapTitle = "Tometo production [ton](2018)", addLegend = TRUE)
+
+```
+## Table
+
+```{r table echo=FALSE}
+
+library(kableExtra)
+library(clipr)
+kable(table_df, align = "c") %>%
+  kable_styling(full_width = F) %>%
+  column_spec(1, bold = T) %>%
+  collapse_rows(columns = 1, valign = "middle")
+
+
+```
